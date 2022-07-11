@@ -3,6 +3,8 @@ const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
 
+jest.mock('../lib/services/github');
+
 describe('github routes', () => {
   beforeEach(() => {
     return setup(pool);
@@ -14,7 +16,7 @@ describe('github routes', () => {
       /https:\/\/github.com\/login\/oauth\/authorize\?client_id=[\w\d]+&scope=user&redirect_uri=http:\/\/localhost:7890\/api\/v1\/github\/callback/i
     );
   });
-  xit('should login and redirect users to /api/v1/github/dashboard', async () => {
+  it('should login and redirect users to /api/v1/github/dashboard', async () => {
     const res = await request
       .agent(app)
       .get('/api/v1/github/callback?code=42')
@@ -29,7 +31,7 @@ describe('github routes', () => {
       exp: expect.any(Number),
     });
   });
-  xit('should return a list of posts for authenticated user', async () => {
+  it('should return a list of posts for authenticated user', async () => {
     const appAgent = request.agent(app);
     const expected = 'Post 1';
     let res = await appAgent
@@ -39,7 +41,7 @@ describe('github routes', () => {
       .get('/api/v1/posts');
     expect(res.body[0].title).toEqual(expected);
   });
-  xit('should allow a user to post, only if they are logged in', async () => {
+  it('should allow a user to post, only if they are logged in', async () => {
     const appAgent = request.agent(app);
     const expected = 'Post 2';
     let res = await appAgent
@@ -50,7 +52,7 @@ describe('github routes', () => {
       .send({ title: 'Post 2', content: 'This is the second test post' });
     expect(res.body.title).toEqual(expected);
   });
-  xit('should log out a user', async () => {
+  it('should log out a user', async () => {
     const appAgent = request.agent(app);
     const res = await appAgent
       .delete('/api/v1/github/sessions');
